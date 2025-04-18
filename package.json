@@ -2,5 +2,13 @@
   "name": "boolder-ukc",
   "version": "0.0.1",
   "main": "index.js",
-  "author": "r9dtech"
+  "author": "r9dtech",
+  "devDependencies": {
+    "tsc": "^2.0.4",
+    "tsx": "^4.19.3"
+  },
+  "dependencies": {
+    "typescript": "^5.8.3",
+    "zod": "^3.24.3"
+  }
 }
