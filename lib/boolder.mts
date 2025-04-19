@@ -36,6 +36,7 @@ const dbResult$ = z.object({
 	climb_name_fr: z.string(),
 	climb_name_en: z.string(),
 	climb_name_searchable: z.string().nullable(),
+	grade: z.string(),
 	area_name: z.string(),
 	area_name_searchable: z.string(),
 	circuit_color: z.string().nullable(),
@@ -47,19 +48,20 @@ export type DbResult = z.infer<typeof dbResult$>
 export async function boolderClimbInfo(id: number): Promise<DbResult> {
 	const queryExecResult = (await db).exec(
 		`
-    select p.name            as climb_name_fr,
-           p.name_en         as climb_name_en,
-           p.name_searchable as climb_name_searchable,
-           a.name            as area_name,
-           a.name_searchable as area_name_searchable,
-           p.circuit_color   as circuit_color,
-           p.circuit_number  as circuit_number
-    from problems p
-           join main.areas a
-                on p.area_id = a.id
-           left join main.circuits c on c.id = p.circuit_id
-    where p.id = ?
-  `,
+			select p.name            as climb_name_fr,
+						 p.name_en         as climb_name_en,
+						 p.name_searchable as climb_name_searchable,
+						 p.grade           as grade,
+						 a.name            as area_name,
+						 a.name_searchable as area_name_searchable,
+						 p.circuit_color   as circuit_color,
+						 p.circuit_number  as circuit_number
+			from problems p
+						 join main.areas a
+									on p.area_id = a.id
+						 left join main.circuits c on c.id = p.circuit_id
+			where p.id = ?
+		`,
 		[id],
 	)
 	if (queryExecResult.length !== 1) {

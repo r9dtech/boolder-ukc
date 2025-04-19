@@ -15,7 +15,9 @@ import {DataLookupResult} from '../data-lookup-service.service'
 					</thead>
 					<tbody>
 					<tr *ngFor="let climb of area.climbs">
+						<td>{{ climb.circuitColor }} {{ climb.circuitNumber }}</td>
 						<td>{{ climb.climbName }}</td>
+						<td>{{ climb.grade }}</td>
 					</tr>
 					</tbody>
 				</ng-container>

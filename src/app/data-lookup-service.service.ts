@@ -3,6 +3,7 @@ import {boolderClimbInfo, parseBoolderExport} from '../../lib/boolder.mjs'
 
 interface EnrichedClimb {
 	climbName: string
+	grade: string
 	circuitColor?: string
 	circuitNumber?: string
 }
@@ -24,6 +25,7 @@ export class DataLookupServiceService {
 			const enrichedClimbs = enrichedClimbsByArea.get(climb.area_name) ?? []
 			enrichedClimbs.push({
 				climbName: climb.climb_name_en,
+				grade: climb.grade,
 				circuitColor: climb.circuit_color ?? undefined,
 				circuitNumber: climb.circuit_number ?? undefined,
 			})
