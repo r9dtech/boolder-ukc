@@ -17,14 +17,15 @@ export async function parseBoolderExport(data: unknown): Promise<BoolderExport> 
 }
 
 export async function fetchBoolderDatabase(): Promise<Database> {
-  const sql = await initSqlJs();
+  const sql = await initSqlJs({
+      locateFile: (file) => `/assets/${file}`
+    }
+  );
   const response = await fetch('https://raw.githubusercontent.com/boolder-org/boolder-data/main/boolder.db');
   return new sql.Database(new Uint8Array(await response.arrayBuffer()))
 }
 
-const db: Promise<Database> = new Promise(() => {
-  // fetchBoolderDatabase()
-})
+const db: Promise<Database> = fetchBoolderDatabase();
 
 const dbResult$ = z.object({
   'climb_name_fr': z.string(),
