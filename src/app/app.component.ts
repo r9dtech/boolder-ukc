@@ -18,7 +18,7 @@ import {NgIf} from '@angular/common';
         <input type="file" accept=".json,application/json" (change)="uploadFile($event)">
       </label>
     </form>
-    <pre>{{ fileParseStatus ?? "Please upload a boolder export file" }}</pre>
+    <pre>{{ fileParseStatus ?? "Please upload a boolder export file - go to the app, export to onedrive/dropbox/whatever, then upload here" }}</pre>
     <climbs *ngIf="boolderData !== undefined" [boolderData]="boolderData"></climbs>
   `,
 })
