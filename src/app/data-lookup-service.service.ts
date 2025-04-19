@@ -35,9 +35,23 @@ export class DataLookupServiceService {
 			.map(([areaName, climbs]) => {
 				return {
 					areaName,
-					climbs: [...climbs].sort((a, b) =>
-						a.climbName.localeCompare(b.climbName),
-					),
+					climbs: [...climbs].sort((a, b) => {
+						const colorComp =
+							a.circuitColor && b.circuitColor
+								? a.circuitColor.localeCompare(b.circuitColor)
+								: a.circuitColor
+									? -1
+									: b.circuitColor
+										? 1
+										: 0
+
+						const numberComp =
+							parseInt(`${a.circuitNumber}`) - parseInt(`${b.circuitNumber}`)
+
+						return (
+							colorComp || numberComp || a.climbName.localeCompare(b.climbName)
+						)
+					}),
 				}
 			})
 			.sort((a, b) => a.areaName.localeCompare(b.areaName))
