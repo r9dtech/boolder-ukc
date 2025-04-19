@@ -9,11 +9,11 @@ const ukcCragSearchResult$ = z.object({
 });
 type UkcCragSearchResult = z.infer<typeof ukcCragSearchResult$>
 
-async function ukcCragSearch(): Promise<UkcCragSearchResult> {
+export async function ukcCragSearch(name: string): Promise<UkcCragSearchResult> {
     try {
         const url = new URL('https://api.ukclimbing.com/site/logbook/v1/crag_search/');
         const params = new URLSearchParams({
-            name: 'Apremont Butte aux Dames',
+            name,
             location: 'fontainebleau, france',
             distance: '50'
         });
@@ -25,5 +25,3 @@ async function ukcCragSearch(): Promise<UkcCragSearchResult> {
         throw new Error("could not fetch from ukc", {cause: e})
     }
 }
-
-console.log(await ukcCragSearch())
