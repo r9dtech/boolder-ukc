@@ -86,11 +86,24 @@ export class DataLookupServiceService {
 
 function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 	for (const climbInfo of apiResult.info.results) {
+		const ukcNormalized = climbInfo.name
+			.toLowerCase()
+			.trim()
+			.replace('le ', 'the ')
+			.replace('la ', 'the ')
+			.replace(/[()]/g, '')
+		const nameInCircuit = `${climb.circuitColor} ${climb.circuitNumber}`
+			.toLowerCase()
+			.trim()
+		const bolderNormalized = climb.climbName
+			.toLowerCase()
+			.trim()
+			.replace('le ', 'the ')
+			.replace('la ', 'the ')
+			.replace(/[()]/g, '')
 		if (
-			`${climb.circuitColor} ${climb.circuitNumber}`.toLowerCase().trim() ===
-				climbInfo.name.toLowerCase().trim() ||
-			climbInfo.name.toLowerCase().trim() ===
-				climb.climbName.toLowerCase().trim()
+			ukcNormalized.indexOf(nameInCircuit) > -1 ||
+			ukcNormalized === bolderNormalized
 		) {
 			return climbInfo.id
 		}
