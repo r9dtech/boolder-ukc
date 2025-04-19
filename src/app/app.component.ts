@@ -1,9 +1,14 @@
 import {Component} from '@angular/core';
-import {parseBoolderExport} from '../../lib/boolder.mjs';
+import {BoolderExport, parseBoolderExport} from '../../lib/boolder.mjs';
+import {ClimbsComponent} from './climbs/climbs.component';
+import {NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [],
+  imports: [
+    ClimbsComponent,
+    NgIf
+  ],
   template: `
     <h1>boolder-ukc</h1>
     <h2>A tool to find Boolder climbs on ukc</h2>
@@ -13,13 +18,15 @@ import {parseBoolderExport} from '../../lib/boolder.mjs';
         <input type="file" accept=".json,application/json" (change)="uploadFile($event)">
       </label>
     </form>
-    <pre>{{ boolderExportStatus ?? "Please upload a boolder export file" }}</pre>
+    <pre>{{ fileParseStatus ?? "Please upload a boolder export file" }}</pre>
+    <climbs *ngIf="boolderData !== undefined" [boolderData]="boolderData"></climbs>
   `,
 })
 export class AppComponent {
   title = 'boolder-ukc';
 
-  boolderExportStatus?: string;
+  fileParseStatus?: string;
+  boolderData?: BoolderExport;
 
   token?: symbol;
 
@@ -28,7 +35,8 @@ export class AppComponent {
   }
 
   uploadFile(event: Event) {
-    delete this.boolderExportStatus;
+    delete this.fileParseStatus;
+    delete this.boolderData;
     const element = event.currentTarget as HTMLInputElement;
     let fileList: FileList | null = element.files;
     if (fileList?.length === 1) {
@@ -40,10 +48,11 @@ export class AppComponent {
           return
         }
         try {
-          const boolderExport = await parseBoolderExport(JSON.parse(reader.result as string));
-          this.boolderExportStatus = `Found ${boolderExport.ticks.length} climbs`
+          const boolderData = await parseBoolderExport(JSON.parse(reader.result as string));
+          this.fileParseStatus = `Found ${boolderData.ticks.length} climbs`
+          this.boolderData = boolderData;
         } catch (e: unknown) {
-          this.boolderExportStatus = `${e}`;
+          this.fileParseStatus = `${e}`;
         }
       }
       reader.readAsText(fileList[0]);

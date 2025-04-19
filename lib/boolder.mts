@@ -6,7 +6,7 @@ const boolderExport$ = z.object({
     id: z.number(),
   }))
 });
-type BoolderExport = z.infer<typeof boolderExport$>
+export type BoolderExport = z.infer<typeof boolderExport$>
 
 export async function parseBoolderExport(data: unknown): Promise<BoolderExport> {
   try {
