@@ -1,4 +1,4 @@
-import {fetchClimbInfo, parseBoolderExport} from './lib/boolder.mjs'
+import {boolderClimbInfo, parseBoolderExport} from './lib/boolder.mjs'
 import {ukcCragInfo, ukcCragSearch} from './lib/ukc.mjs'
 import {boolderExportSample} from './Boolder_export_sample.mjs'
 
@@ -12,7 +12,7 @@ let count = 0
 
 for (const tick of (await parseBoolderExport(boolderExportSample)).ticks) {
 	const id = tick.id
-	const result = await fetchClimbInfo(id)
+	const result = await boolderClimbInfo(id)
 	console.log(result)
 	const ukcCragSearchResult = await ukcCragSearch(result.area_name)
 	console.log(ukcCragSearchResult)

@@ -1,7 +1,10 @@
-import {Component} from '@angular/core'
-import {BoolderExport, parseBoolderExport} from '../../lib/boolder.mjs'
+import {Component, inject} from '@angular/core'
 import {ClimbsComponent} from './climbs/climbs.component'
 import {NgIf} from '@angular/common'
+import {
+	DataLookupResult,
+	DataLookupServiceService,
+} from './data-lookup-service.service'
 
 @Component({
 	selector: 'app-root',
@@ -30,16 +33,16 @@ import {NgIf} from '@angular/common'
 				'Please upload a boolder export file - go to the app, export to onedrive/dropbox/whatever, then upload here'
 		}}</pre>
 		<climbs
-			*ngIf="boolderData !== undefined"
-			[boolderData]="boolderData"
+			*ngIf="climbsByArea !== undefined"
+			[climbsByArea]="climbsByArea"
 		></climbs>
 	`,
 })
 export class AppComponent {
-	title = 'boolder-ukc'
+	dataLookupServiceService = inject(DataLookupServiceService)
 
 	fileParseStatus?: string
-	boolderData?: BoolderExport
+	climbsByArea?: DataLookupResult
 
 	token?: symbol
 
@@ -48,8 +51,8 @@ export class AppComponent {
 	}
 
 	uploadFile(event: Event) {
-		delete this.fileParseStatus
-		delete this.boolderData
+		this.fileParseStatus = 'Loading...'
+		delete this.climbsByArea
 		const element = event.currentTarget as HTMLInputElement
 		const fileList: FileList | null = element.files
 		if (fileList?.length === 1) {
@@ -61,11 +64,11 @@ export class AppComponent {
 					return
 				}
 				try {
-					const boolderData = await parseBoolderExport(
-						JSON.parse(reader.result as string),
+					const boolderData = await this.dataLookupServiceService.enrich(
+						reader.result as string,
 					)
-					this.fileParseStatus = `Found ${boolderData.ticks.length} climbs`
-					this.boolderData = boolderData
+					this.fileParseStatus = `Climbs loaded`
+					this.climbsByArea = boolderData
 				} catch (e: unknown) {
 					this.fileParseStatus = `${e}`
 				}

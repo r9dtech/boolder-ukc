@@ -1,20 +1,27 @@
 import {Component, Input} from '@angular/core'
-import {BoolderExport} from '../../../lib/boolder.mjs'
 import {NgForOf} from '@angular/common'
+import {DataLookupResult} from '../data-lookup-service.service'
 
 @Component({
 	selector: 'climbs',
 	imports: [NgForOf],
 	template: `
-		<table>
-			<tbody>
-				<tr *ngFor="let tick of boolderData.ticks">
-					<td>{{ tick.id }}</td>
-				</tr>
-			</tbody>
-		</table>
-	`,
+			<table>
+				<ng-container *ngFor="let area of climbsByArea">
+					<thead>
+					<tr>
+						<th>{{ area.areaName }}</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr *ngFor="let climb of area.climbs">
+						<td>{{ climb.climbName }}</td>
+					</tr>
+					</tbody>
+				</ng-container>
+			</table>
+    `,
 })
 export class ClimbsComponent {
-	@Input({required: true}) boolderData!: BoolderExport
+	@Input({required: true}) climbsByArea!: DataLookupResult
 }

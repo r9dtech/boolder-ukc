@@ -44,7 +44,7 @@ const dbResult$ = z.object({
 
 export type DbResult = z.infer<typeof dbResult$>
 
-export async function fetchClimbInfo(id: number): Promise<DbResult> {
+export async function boolderClimbInfo(id: number): Promise<DbResult> {
 	const queryExecResult = (await db).exec(
 		`
     select p.name            as climb_name_fr,
