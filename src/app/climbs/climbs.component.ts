@@ -1,10 +1,10 @@
 import {Component, Input} from '@angular/core'
-import {NgForOf, TitleCasePipe} from '@angular/common'
+import {NgForOf, NgIf, TitleCasePipe} from '@angular/common'
 import {DataLookupResult} from '../data-lookup-service.service'
 
 @Component({
 	selector: 'climbs',
-	imports: [NgForOf, TitleCasePipe],
+	imports: [NgForOf, TitleCasePipe, NgIf],
 	template: `
 		<table>
 			<ng-container *ngFor="let area of climbsByArea">
@@ -20,6 +20,7 @@ import {DataLookupResult} from '../data-lookup-service.service'
 					</td>
 					<td>{{ climb.climbName }}</td>
 					<td>{{ climb.grade }}</td>
+					<td><a [href]="climb.link" *ngIf="climb.link">{{ climb.link }}</a></td>
 				</tr>
 				</tbody>
 			</ng-container>

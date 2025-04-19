@@ -1,0 +1,16 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "boolder-ukc"
+main = "server.mts"
+compatibility_date = "2024-09-26"
+compatibility_flags = ["nodejs_compat"]
+
+preview_urls = false
+workers_dev = false
+
+minify = true
+
+[assets]
+directory = "dist/boolder-ukc/browser/"
+
+[observability]
+enabled = true

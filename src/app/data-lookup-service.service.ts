@@ -1,17 +1,26 @@
 import {Injectable} from '@angular/core'
 import {boolderClimbInfo, parseBoolderExport} from '../../lib/boolder.mjs'
+import {ukcCragInfoResult$} from '../../lib/ukc.mjs'
+import {z} from 'zod'
 
 interface EnrichedClimb {
 	climbName: string
 	grade: string
 	circuitColor?: string
 	circuitNumber?: string
+	link?: string
 }
 
 export type DataLookupResult = {
 	areaName: string
 	climbs: EnrichedClimb[]
 }[]
+
+const apiResult$ = z.object({
+	cragId: z.number(),
+	info: ukcCragInfoResult$,
+})
+type ApiResult = z.infer<typeof apiResult$>
 
 @Injectable({
 	providedIn: 'root',
@@ -30,6 +39,23 @@ export class DataLookupServiceService {
 				circuitNumber: climb.circuit_number ?? undefined,
 			})
 			enrichedClimbsByArea.set(climb.area_name, enrichedClimbs)
+		}
+		for (const [areaName, climbs] of enrichedClimbsByArea.entries()) {
+			try {
+				const apiResult = apiResult$.parse(
+					await (
+						await fetch('/api/crag?name=' + encodeURIComponent(areaName))
+					).json(),
+				)
+				for (const climb of climbs) {
+					const ukcClimbId = findClimb(climb, apiResult)
+					if (ukcClimbId) {
+						climb.link = `https://www.ukclimbing.com/logbook/crags/crag-${apiResult.cragId}/climb-${ukcClimbId}`
+					}
+				}
+			} catch (e: unknown) {
+				console.error(e)
+			}
 		}
 		return [...enrichedClimbsByArea.entries()]
 			.map(([areaName, climbs]) => {
@@ -56,4 +82,18 @@ export class DataLookupServiceService {
 			})
 			.sort((a, b) => a.areaName.localeCompare(b.areaName))
 	}
+}
+
+function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
+	for (const climbInfo of apiResult.info.results) {
+		if (
+			`${climb.circuitColor} ${climb.circuitNumber}`.toLowerCase().trim() ===
+				climbInfo.name.toLowerCase().trim() ||
+			climbInfo.name.toLowerCase().trim() ===
+				climb.climbName.toLowerCase().trim()
+		) {
+			return climbInfo.id
+		}
+	}
+	return undefined
 }

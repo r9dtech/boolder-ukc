@@ -9,7 +9,7 @@ const ukcCragSearchResult$ = z.object({
 		}),
 	),
 })
-type UkcCragSearchResult = z.infer<typeof ukcCragSearchResult$>
+export type UkcCragSearchResult = z.infer<typeof ukcCragSearchResult$>
 
 export async function ukcCragSearch(
 	name: string,
@@ -32,13 +32,13 @@ export async function ukcCragSearch(
 	}
 }
 
-const ukcCragInfoResult$ = ukcCragSearchResult$
-type UkcCragInfoResult = z.infer<typeof ukcCragInfoResult$>
+export const ukcCragInfoResult$ = ukcCragSearchResult$
+export type UkcCragInfoResult = z.infer<typeof ukcCragInfoResult$>
 
 export async function ukcCragInfo(id: number): Promise<UkcCragInfoResult> {
 	try {
 		const url = new URL(
-			'https://api.ukclimbing.com/site/logbook/v1/climbs_at_crag/?crag_id=1658',
+			'https://api.ukclimbing.com/site/logbook/v1/climbs_at_crag/',
 		)
 		url.search = new URLSearchParams({
 			crag_id: `${id}`,
