@@ -4,10 +4,12 @@
   "main": "index.js",
   "author": "r9dtech",
   "devDependencies": {
+    "@types/sql.js": "^1.4.9",
     "tsc": "^2.0.4",
     "tsx": "^4.19.3"
   },
   "dependencies": {
+    "sql.js": "^1.13.0",
     "typescript": "^5.8.3",
     "zod": "^3.24.3"
   }
