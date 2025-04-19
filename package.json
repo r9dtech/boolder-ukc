@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "main": "index.js",
   "author": "r9dtech",
+  "scripts": {
+    "test": "tsx test.mts"
+  },
   "devDependencies": {
     "@types/sql.js": "^1.4.9",
     "tsc": "^2.0.4",
