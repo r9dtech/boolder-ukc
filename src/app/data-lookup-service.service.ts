@@ -92,7 +92,10 @@ function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 			.replace('le ', 'the ')
 			.replace('la ', 'the ')
 			.replace(/[()]/g, '')
-		const nameInCircuit = `${climb.circuitColor} ${climb.circuitNumber}`
+		const nameInCircuit1 = `${climb.circuitColor} ${climb.circuitNumber}`
+			.toLowerCase()
+			.trim()
+		const nameInCircuit2 = `${climb.circuitNumber} ${climb.circuitColor}`
 			.toLowerCase()
 			.trim()
 		const bolderNormalized = climb.climbName
@@ -102,8 +105,9 @@ function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 			.replace('la ', 'the ')
 			.replace(/[()]/g, '')
 		if (
-			ukcNormalized.indexOf(nameInCircuit) > -1 ||
-			ukcNormalized === bolderNormalized
+			ukcNormalized.includes(nameInCircuit1) ||
+			ukcNormalized.includes(nameInCircuit2) ||
+			ukcNormalized.includes(bolderNormalized)
 		) {
 			return climbInfo.id
 		}
