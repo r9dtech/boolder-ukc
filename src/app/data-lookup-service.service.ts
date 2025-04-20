@@ -8,7 +8,7 @@ interface EnrichedClimb {
 	grade: string
 	circuitColor?: string
 	circuitNumber?: string
-	link?: string
+	links: string[]
 }
 
 export type DataLookupResult = {
@@ -37,6 +37,7 @@ export class DataLookupServiceService {
 				grade: climb.grade,
 				circuitColor: climb.circuit_color ?? undefined,
 				circuitNumber: climb.circuit_number ?? undefined,
+				links: [],
 			})
 			enrichedClimbsByArea.set(climb.area_name, enrichedClimbs)
 		}
@@ -48,10 +49,11 @@ export class DataLookupServiceService {
 					).json(),
 				)
 				for (const climb of climbs) {
-					const ukcClimbId = findClimb(climb, apiResult)
-					if (ukcClimbId) {
-						climb.link = `https://www.ukclimbing.com/logbook/crags/crag-${apiResult.cragId}/climb-${ukcClimbId}`
-					}
+					const ukcClimbIds = [...findClimb(climb, apiResult)]
+					climb.links = ukcClimbIds.map(
+						(id) =>
+							`https://www.ukclimbing.com/logbook/crags/crag-${apiResult.cragId}/climb-${id}`,
+					)
 				}
 			} catch (e: unknown) {
 				console.error(e)
@@ -84,7 +86,7 @@ export class DataLookupServiceService {
 	}
 }
 
-function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
+function* findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 	for (const climbInfo of apiResult.info.results) {
 		const ukcNormalized = climbInfo.name
 			.toLowerCase()
@@ -109,8 +111,7 @@ function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 			ukcNormalized.includes(nameInCircuit2) ||
 			ukcNormalized.includes(bolderNormalized)
 		) {
-			return climbInfo.id
+			yield climbInfo.id
 		}
 	}
-	return undefined
 }

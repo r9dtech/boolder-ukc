@@ -20,7 +20,13 @@ import {DataLookupResult} from '../data-lookup-service.service'
 					</td>
 					<td>{{ climb.climbName }}</td>
 					<td>{{ climb.grade }}</td>
-					<td><a [href]="climb.link" *ngIf="climb.link">{{ climb.link }}</a></td>
+					<td>
+						<ul>
+							<li *ngFor="let link of climb.links">
+								<a [href]="link">{{ link }}</a>
+							</li>
+						</ul>
+					</td>
 				</tr>
 				</tbody>
 			</ng-container>
