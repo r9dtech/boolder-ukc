@@ -35,6 +35,7 @@ export default {
 				},
 			)
 		} catch (e: unknown) {
+			console.error(e)
 			return new Response(`Error: ${e}`, {
 				status: 500,
 				headers: {'Cache-control': 'max-age=86400'},
