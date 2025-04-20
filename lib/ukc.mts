@@ -8,7 +8,7 @@ const ukcCragSearchResult$ = z.object({
 			name: z
 				.string()
 				.or(z.number())
-				.refine((v) => v.toString()),
+				.transform((v) => v.toString()),
 		}),
 	),
 })
