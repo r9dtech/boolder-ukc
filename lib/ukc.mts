@@ -47,6 +47,5 @@ export async function ukcCragInfo(id: number): Promise<UkcCragInfoResult> {
 	}).toString()
 	const result = await fetch(url.toString())
 	const resultJson = await result.json()
-	console.log(resultJson)
 	return ukcCragInfoResult$.parse(resultJson)
 }
