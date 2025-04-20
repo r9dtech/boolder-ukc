@@ -3,7 +3,7 @@ import {ukcCragInfo, ukcCragSearch} from './lib/ukc.mjs'
 export default {
 	async fetch(request: Request, env: unknown) {
 		const url = new URL(request.url)
-		const name = url.searchParams.get('name')
+		let name = url.searchParams.get('name')
 		if (request.method !== 'GET' || url.pathname !== '/api/crag' || !name) {
 			return new Response(`Not found`, {
 				status: 404,
@@ -11,8 +11,11 @@ export default {
 			})
 		}
 
+		if (name.toLowerCase().includes('apremont')) {
+			name = 'Apremont' // ukc can't find e.g. Apremont Est
+		}
 		try {
-			const ukcCragSearchResult = await ukcCragSearch(name)
+			const ukcCragSearchResult = await ukcCragSearch(name.toLowerCase())
 			if (ukcCragSearchResult.results.length < 1) {
 				return new Response(`No results`, {
 					status: 404,
