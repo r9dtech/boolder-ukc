@@ -5,3 +5,12 @@ https://api.ukclimbing.com/site/logbook/v1/crag_search/?name=isatis&location=fon
 https://api.ukclimbing.com/site/logbook/v1/climbs_at_crag/?crag_id=1658
 
 https://www.ukclimbing.com/logbook/crags/franchard_isatis-1657/la_statique_red_48-236501 not working
+
+
+to deploy:
+
+npm install
+
+npm run build
+
+npx wrangler deploy
