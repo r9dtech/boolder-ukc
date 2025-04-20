@@ -5,7 +5,10 @@ const ukcCragSearchResult$ = z.object({
 	results: z.array(
 		z.object({
 			id: z.number(),
-			name: z.string(),
+			name: z
+				.string()
+				.or(z.number())
+				.refine((v) => v.toString()),
 		}),
 	),
 })
@@ -36,17 +39,14 @@ export const ukcCragInfoResult$ = ukcCragSearchResult$
 export type UkcCragInfoResult = z.infer<typeof ukcCragInfoResult$>
 
 export async function ukcCragInfo(id: number): Promise<UkcCragInfoResult> {
-	try {
-		const url = new URL(
-			'https://api.ukclimbing.com/site/logbook/v1/climbs_at_crag/',
-		)
-		url.search = new URLSearchParams({
-			crag_id: `${id}`,
-		}).toString()
-		const result = await fetch(url.toString())
-		const resultJson = await result.json()
-		return ukcCragInfoResult$.parse(resultJson)
-	} catch (e: unknown) {
-		throw new Error('could not fetch from ukc', {cause: e})
-	}
+	const url = new URL(
+		'https://api.ukclimbing.com/site/logbook/v1/climbs_at_crag/',
+	)
+	url.search = new URLSearchParams({
+		crag_id: `${id}`,
+	}).toString()
+	const result = await fetch(url.toString())
+	const resultJson = await result.json()
+	console.log(resultJson)
+	return ukcCragInfoResult$.parse(resultJson)
 }
