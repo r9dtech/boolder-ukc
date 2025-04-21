@@ -121,7 +121,8 @@ function findClimb(climb: BoolderClimb, apiResult: ApiResult) {
 		)
 		const boolderClimbName = normalizeName(climb.climb_name_en)
 		if (
-			ukcClimbName.includes(boolderClimbName) ||
+			(![circuitClimbName1, circuitClimbName2].includes(boolderClimbName) &&
+				ukcClimbName.includes(boolderClimbName)) ||
 			circuitRegex.test(ukcClimbName)
 		) {
 			possibleMatches.push(climbInfo.id)
