@@ -90,12 +90,7 @@ function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 	const possibleMatches: number[] = []
 	const confidentMatches: number[] = []
 	for (const climbInfo of apiResult.info.results) {
-		const ukcClimbName = climbInfo.name
-			.toLowerCase()
-			.trim()
-			.replace('le ', 'the ')
-			.replace('la ', 'the ')
-			.replace(/[()]/g, '')
+		const ukcClimbName = normalizeName(climbInfo.name)
 		const circuitClimbName1 = `${climb.circuitColor} ${climb.circuitNumber}`
 			.toLowerCase()
 			.trim()
@@ -107,12 +102,7 @@ function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 				circuitClimbName2,
 			)})`,
 		)
-		const boolderClimbName = climb.climbName
-			.toLowerCase()
-			.trim()
-			.replace('le ', 'the ')
-			.replace('la ', 'the ')
-			.replace(/[()]/g, '')
+		const boolderClimbName = normalizeName(climb.climbName)
 		if (
 			ukcClimbName.includes(boolderClimbName) ||
 			circuitRegex.test(ukcClimbName)
@@ -137,6 +127,15 @@ function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 		}
 	}
 	return confidentMatches.length ? confidentMatches : possibleMatches
+}
+
+function normalizeName(name: string) {
+	return name
+		.toLowerCase()
+		.replace(/\bl[ea]\b/g, ' ')
+		.replace(/[()]/g, '')
+		.replace(/ +/g, ' ')
+		.trim()
 }
 
 function regexQuote(str: string) {
