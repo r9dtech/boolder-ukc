@@ -156,7 +156,7 @@ function findClimb(climb: BoolderClimb, apiResult: ApiResult): UkcClimbInfo[] {
 				circuitRegex.test(ukcClimbName)
 			) {
 				// name and circuit match
-				possibleMatches.push(climbInfo)
+				confidentMatches.push(climbInfo)
 			} else if (
 				circuitClimbName1 !== ukcClimbName &&
 				circuitClimbName2 !== ukcClimbName &&
@@ -179,9 +179,7 @@ function findClimb(climb: BoolderClimb, apiResult: ApiResult): UkcClimbInfo[] {
 			}
 		}
 	}
-	return [
-		...new Set(confidentMatches.length ? confidentMatches : possibleMatches),
-	]
+	return confidentMatches.length ? confidentMatches : possibleMatches
 }
 
 function normalizeName(name: string) {
