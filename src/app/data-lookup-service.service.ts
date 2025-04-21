@@ -96,11 +96,15 @@ function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 			.replace('le ', 'the ')
 			.replace('la ', 'the ')
 			.replace(/[()]/g, '')
+		const circuitClimbName1 = `${climb.circuitColor} ${climb.circuitNumber}`
+			.toLowerCase()
+			.trim()
+		const circuitClimbName2 = `${climb.circuitNumber} ${climb.circuitColor}`
+			.toLowerCase()
+			.trim()
 		const circuitRegex = new RegExp(
-			`(${regexQuote(
-				`${climb.circuitColor} ${climb.circuitNumber}`.toLowerCase().trim(),
-			)}\\b)|(\\b${regexQuote(
-				`${climb.circuitNumber} ${climb.circuitColor}`.toLowerCase().trim(),
+			`(${regexQuote(circuitClimbName1)}\\b)|(\\b${regexQuote(
+				circuitClimbName2,
 			)})`,
 		)
 		const boolderClimbName = climb.climbName
@@ -115,9 +119,19 @@ function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 		) {
 			possibleMatches.push(climbInfo.id)
 			if (
+				circuitClimbName1 !== ukcClimbName &&
+				circuitClimbName2 !== ukcClimbName &&
 				ukcClimbName.includes(boolderClimbName) &&
 				circuitRegex.test(ukcClimbName)
 			) {
+				// name and circuit match
+				confidentMatches.push(climbInfo.id)
+			} else if (
+				circuitClimbName1 !== ukcClimbName &&
+				circuitClimbName2 !== ukcClimbName &&
+				ukcClimbName === boolderClimbName
+			) {
+				// not a circuit and exact name match
 				confidentMatches.push(climbInfo.id)
 			}
 		}
