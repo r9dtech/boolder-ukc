@@ -185,8 +185,8 @@ function findClimb(climb: BoolderClimb, apiResult: ApiResult): UkcClimbInfo[] {
 function normalizeName(name: string) {
 	return name
 		.toLowerCase()
-		.replace(/\bl[ea]\b/g, ' ')
-		.replace(/[()]/g, '')
+		.replace(/\bl[ea]\b/g, ' ') // people on uk get le/la wrong
+		.replace(/[()]/g, '') // brackets may be inconsistent between ukc and boolder
 		.replace(/ +/g, ' ')
 		.trim()
 }
