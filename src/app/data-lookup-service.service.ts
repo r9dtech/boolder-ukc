@@ -86,7 +86,8 @@ export class DataLookupServiceService {
 	}
 }
 
-function* findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
+function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
+	const result: number[] = []
 	for (const climbInfo of apiResult.info.results) {
 		const ukcNormalized = climbInfo.name
 			.toLowerCase()
@@ -100,7 +101,7 @@ function* findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 		const nameInCircuit2 = `${climb.circuitNumber} ${climb.circuitColor}`
 			.toLowerCase()
 			.trim()
-		const bolderNormalized = climb.climbName
+		const boolderNormalized = climb.climbName
 			.toLowerCase()
 			.trim()
 			.replace('le ', 'the ')
@@ -109,9 +110,18 @@ function* findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 		if (
 			ukcNormalized.includes(nameInCircuit1) ||
 			ukcNormalized.includes(nameInCircuit2) ||
-			ukcNormalized.includes(bolderNormalized)
+			ukcNormalized.includes(boolderNormalized)
 		) {
-			yield climbInfo.id
+			result.push(climbInfo.id)
+			if (
+				nameInCircuit1 !== boolderNormalized &&
+				nameInCircuit2 !== boolderNormalized &&
+				ukcNormalized.includes(boolderNormalized)
+			) {
+				// this is a very strong match, so let's stop looking
+				return [climbInfo.id]
+			}
 		}
 	}
+	return result
 }
