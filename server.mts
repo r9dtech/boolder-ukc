@@ -1,26 +1,32 @@
 import {ukcCragInfo, ukcCragSearch} from './lib/ukc.mjs'
 
 export default {
-	async fetch(request: Request, env: unknown) {
+	async fetch(request: Request) {
 		const url = new URL(request.url)
-		let name = url.searchParams.get('name')
-		if (request.method !== 'GET' || url.pathname !== '/api/crag' || !name) {
+		const name = url.searchParams.get('name')
+		const cluster = url.searchParams.get('cluster')
+		if (
+			request.method !== 'GET' ||
+			url.pathname !== '/api/crag' ||
+			!name ||
+			!cluster
+		) {
 			return new Response(`Not found`, {
 				status: 404,
 				headers: {'Cache-control': 'max-age=86400'},
 			})
 		}
 
-		if (name.toLowerCase().includes('apremont')) {
-			name = 'Apremont' // ukc can't find e.g. Apremont Est
-		}
 		try {
-			const ukcCragSearchResult = await ukcCragSearch(name.toLowerCase())
+			let ukcCragSearchResult = await ukcCragSearch(name.toLowerCase())
 			if (ukcCragSearchResult.results.length < 1) {
-				return new Response(`No results`, {
-					status: 404,
-					headers: {'Cache-control': 'max-age=86400'},
-				})
+				ukcCragSearchResult = await ukcCragSearch(cluster.toLowerCase())
+				if (ukcCragSearchResult.results.length < 1) {
+					return new Response(`No results`, {
+						status: 404,
+						headers: {'Cache-control': 'max-age=86400'},
+					})
+				}
 			}
 			const cragId = ukcCragSearchResult.results[0].id
 			const ukcCragInfoResult = await ukcCragInfo(cragId)

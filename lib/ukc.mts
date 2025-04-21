@@ -17,22 +17,23 @@ export type UkcCragSearchResult = z.infer<typeof ukcCragSearchResult$>
 export async function ukcCragSearch(
 	name: string,
 ): Promise<UkcCragSearchResult> {
-	try {
-		const url = new URL(
-			'https://api.ukclimbing.com/site/logbook/v1/crag_search/',
-		)
-		const params = new URLSearchParams({
-			name,
-			location: 'fontainebleau, france',
-			distance: '50',
-		})
-		url.search = params.toString()
-		const result = await fetch(url.toString())
-		const resultJson = await result.json()
-		return ukcCragSearchResult$.parse(resultJson)
-	} catch (e: unknown) {
-		throw new Error('could not fetch from ukc', {cause: e})
+	const url = new URL('https://api.ukclimbing.com/site/logbook/v1/crag_search/')
+	const params = new URLSearchParams({
+		name,
+		location: 'fontainebleau, france',
+		distance: '50',
+	})
+	url.search = params.toString()
+	const result = await fetch(url.toString())
+	const resultJson = await result.json()
+	if (typeof resultJson['results'] === 'string') {
+		// bizarrely the results come back as a string instead of an array
+		return {
+			success: 0,
+			results: [],
+		}
 	}
+	return ukcCragSearchResult$.parse(resultJson)
 }
 
 const ukcClimbInfo$ = z.object({
@@ -47,9 +48,7 @@ const ukcClimbInfo$ = z.object({
 export type UkcClimbInfo = z.infer<typeof ukcClimbInfo$>
 export const ukcCragInfoResult$ = z.object({
 	success: z.number().optional(),
-	results: z.array(
-		ukcClimbInfo$,
-	),
+	results: z.array(ukcClimbInfo$),
 })
 export type UkcCragInfoResult = z.infer<typeof ukcCragInfoResult$>
 

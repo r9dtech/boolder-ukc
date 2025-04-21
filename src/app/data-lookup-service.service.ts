@@ -35,22 +35,30 @@ type ApiResult = z.infer<typeof apiResult$>
 })
 export class DataLookupServiceService {
 	async enrich(json: string): Promise<DataLookupResult> {
-		const dbResultsByArea = new Map<string, BoolderClimb[]>()
+		const dbResultsByArea = new Map<string, [string, BoolderClimb[]]>()
 		const boolderData = await parseBoolderExport(JSON.parse(json))
 		for (const tick of boolderData.ticks) {
 			const climb = await boolderClimbInfo(tick.id)
-			const dbResults = dbResultsByArea.get(climb.area_name) ?? []
+			const [clusterName, dbResults] = dbResultsByArea.get(climb.area_name) ?? [
+				climb.cluster_name,
+				[],
+			]
 			dbResults.push(climb)
-			dbResultsByArea.set(climb.area_name, dbResults)
+			dbResultsByArea.set(climb.area_name, [clusterName, dbResults])
 		}
 		const enrichedClimbsByArea = new Map<string, EnrichedClimb[]>()
-		for (const [areaName, climbs] of dbResultsByArea.entries()) {
+		for (const [areaName, [clusterName, climbs]] of dbResultsByArea.entries()) {
 			const enrichedClimbs: EnrichedClimb[] = []
 			let apiResult: ApiResult | null = null
 			try {
 				apiResult = apiResult$.parse(
 					await (
-						await fetch('/api/crag?name=' + encodeURIComponent(areaName))
+						await fetch(
+							'/api/crag?name=' +
+								encodeURIComponent(areaName) +
+								'&cluster=' +
+								encodeURIComponent(clusterName),
+						)
 					).json(),
 				)
 			} catch (e: unknown) {
