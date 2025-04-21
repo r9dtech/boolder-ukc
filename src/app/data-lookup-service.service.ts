@@ -87,7 +87,8 @@ export class DataLookupServiceService {
 }
 
 function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
-	const result: number[] = []
+	const possibleMatches: number[] = []
+	const confidentMatches: number[] = []
 	for (const climbInfo of apiResult.info.results) {
 		const ukcClimbName = climbInfo.name
 			.toLowerCase()
@@ -112,17 +113,16 @@ function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 			ukcClimbName.includes(boolderClimbName) ||
 			circuitRegex.test(ukcClimbName)
 		) {
-			result.push(climbInfo.id)
+			possibleMatches.push(climbInfo.id)
 			if (
 				ukcClimbName.includes(boolderClimbName) &&
 				circuitRegex.test(ukcClimbName)
 			) {
-				// this is a very strong match, so let's stop looking
-				return [climbInfo.id]
+				confidentMatches.push(climbInfo.id)
 			}
 		}
 	}
-	return result
+	return confidentMatches.length ? confidentMatches : possibleMatches
 }
 
 function regexQuote(str: string) {
