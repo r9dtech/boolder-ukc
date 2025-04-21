@@ -10,7 +10,6 @@
 		"test": "ng test",
 		"lint": "eslint . && tsc --noEmit && prettier . --check",
 		"lint:fix": "eslint . --fix && prettier . --write",
-		"libtest": "tsx test.mts"
 	},
 	"private": true,
 	"browser": {
