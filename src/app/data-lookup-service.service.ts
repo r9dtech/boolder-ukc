@@ -147,6 +147,11 @@ function findClimb(climb: BoolderClimb, apiResult: ApiResult) {
 			) {
 				// Sector name, e.g. butte aux dames + circuit match
 				confidentMatches.push(climbInfo.id)
+			} else if (
+				climbInfo.description?.includes(`${climb.bleau_info_id}.html`)
+			) {
+				// link to bleau info page in ukc description
+				confidentMatches.push(climbInfo.id)
 			}
 		}
 	}

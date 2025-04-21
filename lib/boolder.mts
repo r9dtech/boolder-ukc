@@ -35,6 +35,7 @@ const db: Promise<Database> = fetchBoolderDatabase()
 const dbResult$ = z.object({
 	climb_name_en: z.string(),
 	grade: z.string(),
+	bleau_info_id: z.string().nullable(),
 	area_name: z.string(),
 	cluster_name: z.string(),
 	circuit_color: z.string().nullable(),
@@ -51,7 +52,8 @@ export async function boolderClimbInfo(id: number): Promise<BoolderClimb> {
 						 a.name           as area_name,
 						 cl.name          as cluster_name,
 						 p.circuit_color  as circuit_color,
-						 p.circuit_number as circuit_number
+						 p.circuit_number as circuit_number,
+						 p.bleau_info_id  as bleau_info_id
 			from problems p
 						 join main.areas a on p.area_id = a.id
 						 join main.clusters cl on a.cluster_id = cl.id

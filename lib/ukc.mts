@@ -35,7 +35,19 @@ export async function ukcCragSearch(
 	}
 }
 
-export const ukcCragInfoResult$ = ukcCragSearchResult$
+export const ukcCragInfoResult$ = z.object({
+	success: z.number().optional(),
+	results: z.array(
+		z.object({
+			id: z.number(),
+			name: z
+				.string()
+				.or(z.number())
+				.transform((v) => v.toString()),
+			description: z.string().nullable().optional(),
+		}),
+	),
+})
 export type UkcCragInfoResult = z.infer<typeof ukcCragInfoResult$>
 
 export async function ukcCragInfo(id: number): Promise<UkcCragInfoResult> {
