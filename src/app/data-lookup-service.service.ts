@@ -89,34 +89,33 @@ export class DataLookupServiceService {
 function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 	const result: number[] = []
 	for (const climbInfo of apiResult.info.results) {
-		const ukcNormalized = climbInfo.name
+		const ukcClimbName = climbInfo.name
 			.toLowerCase()
 			.trim()
 			.replace('le ', 'the ')
 			.replace('la ', 'the ')
 			.replace(/[()]/g, '')
-		const nameInCircuit1 = `${climb.circuitColor} ${climb.circuitNumber}`
-			.toLowerCase()
-			.trim()
-		const nameInCircuit2 = `${climb.circuitNumber} ${climb.circuitColor}`
-			.toLowerCase()
-			.trim()
-		const boolderNormalized = climb.climbName
+		const circuitRegex = new RegExp(
+			`(${regexQuote(
+				`${climb.circuitColor} ${climb.circuitNumber}`.toLowerCase().trim(),
+			)}\\b)|(\\b${regexQuote(
+				`${climb.circuitNumber} ${climb.circuitColor}`.toLowerCase().trim(),
+			)})`,
+		)
+		const boolderClimbName = climb.climbName
 			.toLowerCase()
 			.trim()
 			.replace('le ', 'the ')
 			.replace('la ', 'the ')
 			.replace(/[()]/g, '')
 		if (
-			ukcNormalized.includes(nameInCircuit1) ||
-			ukcNormalized.includes(nameInCircuit2) ||
-			ukcNormalized.includes(boolderNormalized)
+			ukcClimbName.includes(boolderClimbName) ||
+			circuitRegex.test(ukcClimbName)
 		) {
 			result.push(climbInfo.id)
 			if (
-				nameInCircuit1 !== boolderNormalized &&
-				nameInCircuit2 !== boolderNormalized &&
-				ukcNormalized.includes(boolderNormalized)
+				ukcClimbName.includes(boolderClimbName) &&
+				circuitRegex.test(ukcClimbName)
 			) {
 				// this is a very strong match, so let's stop looking
 				return [climbInfo.id]
@@ -124,4 +123,8 @@ function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 		}
 	}
 	return result
+}
+
+function regexQuote(str: string) {
+	return str.replace(/[.\\+*?[^\]$(){}=!<>|:#-]/g, '\\$&')
 }
