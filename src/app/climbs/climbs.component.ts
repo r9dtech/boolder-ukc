@@ -22,8 +22,9 @@ import {DataLookupResult} from '../data-lookup-service.service'
 					<td>{{ climb.grade }}</td>
 					<td>
 						<ul>
-							<li *ngFor="let link of climb.links">
-								<a [href]="link">{{ link }}</a>
+							<li *ngFor="let ukcClimb of climb.ukcClimbs">
+								<a
+									[href]="ukcClimb.link">{{ ukcClimb.grade_name ? "[" + ukcClimb.grade_name + "]" : "" }} {{ ukcClimb.name }}</a>
 							</li>
 						</ul>
 					</td>

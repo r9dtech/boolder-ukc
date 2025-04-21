@@ -4,7 +4,7 @@ import {
 	boolderClimbInfo,
 	parseBoolderExport,
 } from '../../lib/boolder.mjs'
-import {ukcCragInfoResult$} from '../../lib/ukc.mjs'
+import {UkcClimbInfo, ukcCragInfoResult$} from '../../lib/ukc.mjs'
 import {z} from 'zod'
 
 interface EnrichedClimb {
@@ -12,7 +12,11 @@ interface EnrichedClimb {
 	grade: string
 	circuitColor?: string
 	circuitNumber?: string
-	links: string[]
+	ukcClimbs: {
+		link: string
+		name: string
+		grade_name?: string | null | undefined
+	}[]
 }
 
 export type DataLookupResult = {
@@ -52,18 +56,29 @@ export class DataLookupServiceService {
 			} catch (e: unknown) {
 				console.error(e)
 			}
+			if (apiResult) {
+				for (const result of apiResult.info.results) {
+					result.name = decodeHtml(result.name)
+					if (result.description) {
+						result.description = decodeHtml(result.description)
+					}
+				}
+			}
 			for (const climb of climbs) {
 				const enrichedClimb: EnrichedClimb = {
 					climbName: climb.climb_name_en,
 					grade: climb.grade,
 					circuitColor: climb.circuit_color ?? undefined,
 					circuitNumber: climb.circuit_number ?? undefined,
-					links: [],
+					ukcClimbs: [],
 				}
 				if (apiResult) {
-					enrichedClimb.links = findClimb(climb, apiResult).map(
-						(id) =>
-							`https://www.ukclimbing.com/logbook/crags/crag-${apiResult.cragId}/climb-${id}`,
+					enrichedClimb.ukcClimbs = findClimb(climb, apiResult).map(
+						(climbInfo) => ({
+							name: climbInfo.name,
+							link: `https://www.ukclimbing.com/logbook/crags/crag-${apiResult.cragId}/climb-${climbInfo.id}`,
+							grade_name: climbInfo.grade_name,
+						}),
 					)
 				}
 				enrichedClimbs.push(enrichedClimb)
@@ -97,9 +112,9 @@ export class DataLookupServiceService {
 	}
 }
 
-function findClimb(climb: BoolderClimb, apiResult: ApiResult) {
-	const possibleMatches: number[] = []
-	const confidentMatches: number[] = []
+function findClimb(climb: BoolderClimb, apiResult: ApiResult): UkcClimbInfo[] {
+	const possibleMatches: UkcClimbInfo[] = []
+	const confidentMatches: UkcClimbInfo[] = []
 
 	const sectorName = normalizeName(
 		climb.area_name.replace(climb.cluster_name, ' '),
@@ -125,7 +140,7 @@ function findClimb(climb: BoolderClimb, apiResult: ApiResult) {
 				ukcClimbName.includes(boolderClimbName)) ||
 			circuitRegex.test(ukcClimbName)
 		) {
-			possibleMatches.push(climbInfo.id)
+			possibleMatches.push(climbInfo)
 			if (
 				circuitClimbName1 !== ukcClimbName &&
 				circuitClimbName2 !== ukcClimbName &&
@@ -133,30 +148,32 @@ function findClimb(climb: BoolderClimb, apiResult: ApiResult) {
 				circuitRegex.test(ukcClimbName)
 			) {
 				// name and circuit match
-				confidentMatches.push(climbInfo.id)
+				possibleMatches.push(climbInfo)
 			} else if (
 				circuitClimbName1 !== ukcClimbName &&
 				circuitClimbName2 !== ukcClimbName &&
 				ukcClimbName === boolderClimbName
 			) {
 				// not a circuit and exact name match
-				confidentMatches.push(climbInfo.id)
+				confidentMatches.push(climbInfo)
 			} else if (
 				circuitRegex.test(ukcClimbName) &&
 				sectorName.length &&
 				ukcClimbName.includes(sectorName)
 			) {
 				// Sector name, e.g. butte aux dames + circuit match
-				confidentMatches.push(climbInfo.id)
+				confidentMatches.push(climbInfo)
 			} else if (
 				climbInfo.description?.includes(`${climb.bleau_info_id}.html`)
 			) {
 				// link to bleau info page in ukc description
-				confidentMatches.push(climbInfo.id)
+				confidentMatches.push(climbInfo)
 			}
 		}
 	}
-	return confidentMatches.length ? confidentMatches : possibleMatches
+	return [
+		...new Set(confidentMatches.length ? confidentMatches : possibleMatches),
+	]
 }
 
 function normalizeName(name: string) {
@@ -170,4 +187,10 @@ function normalizeName(name: string) {
 
 function regexQuote(str: string) {
 	return str.replace(/[.\\+*?[^\]$(){}=!<>|:#-]/g, '\\$&')
+}
+
+function decodeHtml(html: string) {
+	const txt = document.createElement('textarea')
+	txt.innerHTML = html
+	return txt.value
 }

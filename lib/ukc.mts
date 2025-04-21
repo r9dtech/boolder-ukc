@@ -35,17 +35,20 @@ export async function ukcCragSearch(
 	}
 }
 
+const ukcClimbInfo$ = z.object({
+	id: z.number(),
+	name: z
+		.string()
+		.or(z.number())
+		.transform((v) => v.toString()),
+	description: z.string().nullable().optional(),
+	grade_name: z.string().nullable().optional(),
+})
+export type UkcClimbInfo = z.infer<typeof ukcClimbInfo$>
 export const ukcCragInfoResult$ = z.object({
 	success: z.number().optional(),
 	results: z.array(
-		z.object({
-			id: z.number(),
-			name: z
-				.string()
-				.or(z.number())
-				.transform((v) => v.toString()),
-			description: z.string().nullable().optional(),
-		}),
+		ukcClimbInfo$,
 	),
 })
 export type UkcCragInfoResult = z.infer<typeof ukcCragInfoResult$>
