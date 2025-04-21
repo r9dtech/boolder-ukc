@@ -14,13 +14,13 @@ import {
 		<h2>A tool to find Boolder climbs on ukc</h2>
 		<p>
 			<small
-				>This is probably quite brittle - if UKC change things then it might
+			>This is probably quite brittle - if UKC change things then it might
 				stop working!</small
 			>
 		</p>
 		<form (submit)="$event.preventDefault()">
 			<label
-				>Upload Boolder export:
+			>Upload Boolder export:
 				<input
 					type="file"
 					accept=".json,application/json"
@@ -29,9 +29,11 @@ import {
 			</label>
 		</form>
 		<pre>{{
-			fileParseStatus ??
+				fileParseStatus ??
 				'Please upload a boolder export file - go to the app, export to onedrive/dropbox/whatever, then upload here'
-		}}</pre>
+			}}</pre>
+		<h3>Finding this useful?<a target="_blank" href="https://buymeacoffee.com/r9dtech" rel="noreferrer"> Buy
+			me a coffee!</a></h3>
 		<climbs
 			*ngIf="climbsByArea !== undefined"
 			[climbsByArea]="climbsByArea"
