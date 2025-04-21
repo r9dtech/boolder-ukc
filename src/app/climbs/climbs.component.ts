@@ -1,10 +1,10 @@
 import {Component, Input} from '@angular/core'
-import {NgForOf, NgIf, TitleCasePipe} from '@angular/common'
+import {NgForOf, TitleCasePipe} from '@angular/common'
 import {DataLookupResult} from '../data-lookup-service.service'
 
 @Component({
 	selector: 'climbs',
-	imports: [NgForOf, TitleCasePipe, NgIf],
+	imports: [NgForOf, TitleCasePipe],
 	template: `
 		<table>
 			<ng-container *ngFor="let area of climbsByArea">
