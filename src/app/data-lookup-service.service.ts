@@ -1,5 +1,9 @@
 import {Injectable} from '@angular/core'
-import {boolderClimbInfo, parseBoolderExport} from '../../lib/boolder.mjs'
+import {
+	BoolderClimb,
+	boolderClimbInfo,
+	parseBoolderExport,
+} from '../../lib/boolder.mjs'
 import {ukcCragInfoResult$} from '../../lib/ukc.mjs'
 import {z} from 'zod'
 
@@ -27,37 +31,44 @@ type ApiResult = z.infer<typeof apiResult$>
 })
 export class DataLookupServiceService {
 	async enrich(json: string): Promise<DataLookupResult> {
-		const enrichedClimbsByArea = new Map<string, EnrichedClimb[]>()
+		const dbResultsByArea = new Map<string, BoolderClimb[]>()
 		const boolderData = await parseBoolderExport(JSON.parse(json))
 		for (const tick of boolderData.ticks) {
 			const climb = await boolderClimbInfo(tick.id)
-			const enrichedClimbs = enrichedClimbsByArea.get(climb.area_name) ?? []
-			enrichedClimbs.push({
-				climbName: climb.climb_name_en,
-				grade: climb.grade,
-				circuitColor: climb.circuit_color ?? undefined,
-				circuitNumber: climb.circuit_number ?? undefined,
-				links: [],
-			})
-			enrichedClimbsByArea.set(climb.area_name, enrichedClimbs)
+			const dbResults = dbResultsByArea.get(climb.area_name) ?? []
+			dbResults.push(climb)
+			dbResultsByArea.set(climb.area_name, dbResults)
 		}
-		for (const [areaName, climbs] of enrichedClimbsByArea.entries()) {
+		const enrichedClimbsByArea = new Map<string, EnrichedClimb[]>()
+		for (const [areaName, climbs] of dbResultsByArea.entries()) {
+			const enrichedClimbs: EnrichedClimb[] = []
+			let apiResult: ApiResult | null = null
 			try {
-				const apiResult = apiResult$.parse(
+				apiResult = apiResult$.parse(
 					await (
 						await fetch('/api/crag?name=' + encodeURIComponent(areaName))
 					).json(),
 				)
-				for (const climb of climbs) {
-					const ukcClimbIds = [...findClimb(climb, apiResult)]
-					climb.links = ukcClimbIds.map(
+			} catch (e: unknown) {
+				console.error(e)
+			}
+			for (const climb of climbs) {
+				const enrichedClimb: EnrichedClimb = {
+					climbName: climb.climb_name_en,
+					grade: climb.grade,
+					circuitColor: climb.circuit_color ?? undefined,
+					circuitNumber: climb.circuit_number ?? undefined,
+					links: [],
+				}
+				if (apiResult) {
+					enrichedClimb.links = findClimb(climb, apiResult).map(
 						(id) =>
 							`https://www.ukclimbing.com/logbook/crags/crag-${apiResult.cragId}/climb-${id}`,
 					)
 				}
-			} catch (e: unknown) {
-				console.error(e)
+				enrichedClimbs.push(enrichedClimb)
 			}
+			enrichedClimbsByArea.set(areaName, enrichedClimbs)
 		}
 		return [...enrichedClimbsByArea.entries()]
 			.map(([areaName, climbs]) => {
@@ -86,15 +97,21 @@ export class DataLookupServiceService {
 	}
 }
 
-function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
+function findClimb(climb: BoolderClimb, apiResult: ApiResult) {
 	const possibleMatches: number[] = []
 	const confidentMatches: number[] = []
+
+	const sectorName = normalizeName(
+		climb.area_name.replace(climb.cluster_name, ' '),
+	)
+	console.log(sectorName)
+
 	for (const climbInfo of apiResult.info.results) {
 		const ukcClimbName = normalizeName(climbInfo.name)
-		const circuitClimbName1 = `${climb.circuitColor} ${climb.circuitNumber}`
+		const circuitClimbName1 = `${climb.circuit_color} ${climb.circuit_number}`
 			.toLowerCase()
 			.trim()
-		const circuitClimbName2 = `${climb.circuitNumber} ${climb.circuitColor}`
+		const circuitClimbName2 = `${climb.circuit_number} ${climb.circuit_color}`
 			.toLowerCase()
 			.trim()
 		const circuitRegex = new RegExp(
@@ -102,7 +119,7 @@ function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 				circuitClimbName2,
 			)})`,
 		)
-		const boolderClimbName = normalizeName(climb.climbName)
+		const boolderClimbName = normalizeName(climb.climb_name_en)
 		if (
 			ukcClimbName.includes(boolderClimbName) ||
 			circuitRegex.test(ukcClimbName)
@@ -122,6 +139,13 @@ function findClimb(climb: EnrichedClimb, apiResult: ApiResult) {
 				ukcClimbName === boolderClimbName
 			) {
 				// not a circuit and exact name match
+				confidentMatches.push(climbInfo.id)
+			} else if (
+				circuitRegex.test(ukcClimbName) &&
+				sectorName.length &&
+				ukcClimbName.includes(sectorName)
+			) {
+				// Sector name, e.g. butte aux dames + circuit match
 				confidentMatches.push(climbInfo.id)
 			}
 		}
