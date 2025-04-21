@@ -28,10 +28,10 @@ import {
 					/>
 				</label>
 			</form>
-			<pre>{{
+			<p>{{
 					fileParseStatus ??
-					'Please upload a boolder export file - go to the app, export to onedrive/dropbox/whatever, then upload here'
-				}}</pre>
+					'Please upload a boolder export file - go to the app, tap on "Tick List", tap on the 3 dots (top right), tap "Export", save to onedrive/dropbox/whatever, then upload here'
+				}}</p>
 			<h3>
 				Finding this useful?
 				<a target="_blank" href="https://buymeacoffee.com/r9dtech" rel="noreferrer">Buy me a coffee!</a>
