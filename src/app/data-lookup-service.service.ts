@@ -127,40 +127,39 @@ function findClimb(climb: BoolderClimb, apiResult: ApiResult): UkcClimbInfo[] {
 	const sectorName = normalizeName(
 		climb.area_name.replace(climb.cluster_name, ' '),
 	)
-	console.log(sectorName)
 
 	for (const climbInfo of apiResult.info.results) {
 		const ukcClimbName = normalizeName(climbInfo.name)
-		const circuitClimbName1 = `${climb.circuit_color} ${climb.circuit_number}`
-			.toLowerCase()
-			.trim()
-		const circuitClimbName2 = `${climb.circuit_number} ${climb.circuit_color}`
-			.toLowerCase()
-			.trim()
+		const circuitClimbName1 = normalizeName(
+			`${climb.circuit_color} ${climb.circuit_number}`,
+		)
+		const circuitClimbName2 = normalizeName(
+			`${climb.circuit_number} ${climb.circuit_color}`,
+		)
 		const circuitRegex = new RegExp(
-			`(${regexQuote(circuitClimbName1)}\\b)|(\\b${regexQuote(
+			`\\b(${regexQuote(circuitClimbName1)}|${regexQuote(
 				circuitClimbName2,
-			)})`,
+			)})\\b`,
 		)
 		const boolderClimbName = normalizeName(climb.climb_name_en)
+		const boolderClimbRegex = new RegExp(
+			`\\b${regexQuote(boolderClimbName)}\\b`,
+		)
 		if (
-			(![circuitClimbName1, circuitClimbName2].includes(boolderClimbName) &&
-				ukcClimbName.includes(boolderClimbName)) ||
+			boolderClimbRegex.test(ukcClimbName) ||
 			circuitRegex.test(ukcClimbName)
 		) {
 			possibleMatches.push(climbInfo)
 			if (
-				circuitClimbName1 !== ukcClimbName &&
-				circuitClimbName2 !== ukcClimbName &&
-				ukcClimbName.includes(boolderClimbName) &&
-				circuitRegex.test(ukcClimbName)
+				boolderClimbRegex.test(ukcClimbName) &&
+				circuitRegex.test(ukcClimbName) &&
+				!circuitRegex.test(boolderClimbName)
 			) {
-				// name and circuit match
+				// name and circuit match, name!=circuit
 				confidentMatches.push(climbInfo)
 			} else if (
-				circuitClimbName1 !== ukcClimbName &&
-				circuitClimbName2 !== ukcClimbName &&
-				ukcClimbName === boolderClimbName
+				ukcClimbName === boolderClimbName &&
+				!circuitRegex.test(boolderClimbName)
 			) {
 				// not a circuit and exact name match
 				confidentMatches.push(climbInfo)
@@ -179,6 +178,12 @@ function findClimb(climb: BoolderClimb, apiResult: ApiResult): UkcClimbInfo[] {
 			}
 		}
 	}
+	// if (climb.circuit_number === '1')
+	// 	console.log(
+	// 		`${climb.area_name} ${climb.climb_name_en} ${climb.circuit_color} ${climb.circuit_number}`,
+	// 		confidentMatches,
+	// 		possibleMatches,
+	// 	)
 	return confidentMatches.length ? confidentMatches : possibleMatches
 }
 

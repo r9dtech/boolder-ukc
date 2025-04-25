@@ -10,43 +10,53 @@ import {
 	selector: 'app-root',
 	imports: [ClimbsComponent, NgIf],
 	template: `
-			<h1>boolder-ukc</h1>
-			<h2>A tool to find Boolder climbs on ukc</h2>
-			<p>
-				<small
+		<h1>boolder-ukc</h1>
+		<h2>A tool to find Boolder climbs on ukc</h2>
+		<p>
+			<small
 				>This is probably quite brittle - if UKC change things then it might
-					stop working!</small
-				>
-			</p>
-			<form (submit)="$event.preventDefault()">
-				<label
+				stop working!</small
+			>
+		</p>
+		<form (submit)="$event.preventDefault()">
+			<label
 				>Upload Boolder export:
-					<input
-						type="file"
-						accept=".json,application/json"
-						(change)="uploadFile($event)"
-					/>
-				</label>
-			</form>
-			<p>{{
-					fileParseStatus ??
+				<input
+					type="file"
+					accept=".json,application/json"
+					(change)="uploadFile($event)"
+				/>
+			</label>
+		</form>
+		<p>
+			{{
+				fileParseStatus ??
 					'Please upload a boolder export file - go to the app, tap on "Tick List", tap on the 3 dots (top right), tap "Export", save to onedrive/dropbox/whatever, then upload here'
-				}}</p>
-			<h3>
-				Finding this useful?
-				<a target="_blank" href="https://buymeacoffee.com/r9dtech" rel="noreferrer">Buy me a coffee!</a>
-			</h3>
-			<climbs
-				*ngIf="climbsByArea !== undefined"
-				[climbsByArea]="climbsByArea"
-			></climbs>
-			<p>
-				<small>
-					Source on
-					<a href="https://github.com/r9dtech/boolder-ukc?tab=readme-ov-file#boolder-ukc">GitHub...</a>
-				</small>
-			</p>
-    `,
+			}}
+		</p>
+		<h3>
+			Finding this useful?
+			<a
+				target="_blank"
+				href="https://buymeacoffee.com/r9dtech"
+				rel="noreferrer"
+				>Buy me a coffee!</a
+			>
+		</h3>
+		<climbs
+			*ngIf="climbsByArea !== undefined"
+			[climbsByArea]="climbsByArea"
+		></climbs>
+		<p>
+			<small>
+				Source on
+				<a
+					href="https://github.com/r9dtech/boolder-ukc?tab=readme-ov-file#boolder-ukc"
+					>GitHub...</a
+				>
+			</small>
+		</p>
+	`,
 })
 export class AppComponent {
 	dataLookupServiceService = inject(DataLookupServiceService)
@@ -55,10 +65,6 @@ export class AppComponent {
 	climbsByArea?: DataLookupResult
 
 	token?: symbol
-
-	constructor() {
-		console.log('hi')
-	}
 
 	uploadFile(event: Event) {
 		this.fileParseStatus = 'Loading...'
